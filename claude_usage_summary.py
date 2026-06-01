@@ -140,6 +140,7 @@ def parse_session(filepath: Path):
 
     return {
         "file": str(filepath.name),
+        "project": filepath.parent.name,
         "session_id": session_id or filepath.stem[:12],
         "title": title or "(senza titolo)",
         "model": model,
@@ -163,36 +164,66 @@ def format_table(sessions):
         print("⚠️  Nessun dato di usage trovato nei file JSONL.")
         return
 
-    print("\n" + "=" * 130)
-    print(f"{'TITOLO':<30} {'MODELLO':<18} {'INPUT':>9} {'OUTPUT':>9} "
-          f"{'CACHE W':>9} {'CACHE R':>9} {'USD':>9} {'EUR':>9} {'CALLS':>6} {'DATA':<16}")
-    print("-" * 130)
+    # Raggruppa per progetto
+    from collections import defaultdict
+    projects = defaultdict(list)
+    for s in sessions:
+        projects[s["project"]].append(s)
 
+    # Totali globali
     tot_in = tot_out = tot_cw = tot_cr = 0
     tot_usd = tot_eur = 0.0
+    all_calls = 0
 
-    for s in sessions:
-        date_str = s["start"].strftime("%Y-%m-%d %H:%M") if s["start"] else "N/A"
-        title = s["title"][:29]
-        model_short = s["model"][:17]
+    print("\n" + "=" * 130)
 
-        print(f"{title:<30} {model_short:<18} {s['input_tokens']:>9,} {s['output_tokens']:>9,} "
-              f"{s['cache_write']:>9,} {s['cache_read']:>9,} "
-              f"${s['cost_usd']:>8.4f} €{s['cost_eur']:>8.4f} "
-              f"{s['api_calls']:>6} {date_str:<16}")
+    for project_name in sorted(projects.keys()):
+        project_sessions = projects[project_name]
+        proj_in = proj_out = proj_cw = proj_cr = 0
+        proj_usd = proj_eur = 0.0
+        proj_calls = 0
 
-        tot_in += s["input_tokens"]
-        tot_out += s["output_tokens"]
-        tot_cw += s["cache_write"]
-        tot_cr += s["cache_read"]
-        tot_usd += s["cost_usd"]
-        tot_eur += s["cost_eur"]
+        # Intestazione del progetto
+        print(f"📁 {project_name}")
+        print(f"{'TITOLO':<40} {'MODELLO':<18} {'INPUT':>9} {'OUTPUT':>9} "
+              f"{'CACHE W':>9} {'CACHE R':>9} {'USD':>9} {'EUR':>9} {'CALLS':>6}")
+        print("-" * 130)
 
-    print("-" * 130)
-    print(f"{'TOTALE':<30} {'':<18} {tot_in:>9,} {tot_out:>9,} "
+        for s in project_sessions:
+            title = s["title"][:39]
+            model_short = s["model"][:17]
+
+            print(f"  {title:<38} {model_short:<18} {s['input_tokens']:>9,} {s['output_tokens']:>9,} "
+                  f"{s['cache_write']:>9,} {s['cache_read']:>9,} "
+                  f"${s['cost_usd']:>8.4f} €{s['cost_eur']:>8.4f} "
+                  f"{s['api_calls']:>6}")
+
+            proj_in += s["input_tokens"]
+            proj_out += s["output_tokens"]
+            proj_cw += s["cache_write"]
+            proj_cr += s["cache_read"]
+            proj_usd += s["cost_usd"]
+            proj_eur += s["cost_eur"]
+            proj_calls += s["api_calls"]
+
+        print(f"{'└─ SUBTOTALE':<40} {'':<18} {proj_in:>9,} {proj_out:>9,} "
+              f"{proj_cw:>9,} {proj_cr:>9,} "
+              f"${proj_usd:>8.4f} €{proj_eur:>8.4f} "
+              f"{proj_calls:>6}")
+        print("=" * 130)
+
+        tot_in += proj_in
+        tot_out += proj_out
+        tot_cw += proj_cw
+        tot_cr += proj_cr
+        tot_usd += proj_usd
+        tot_eur += proj_eur
+        all_calls += proj_calls
+
+    print(f"\n{'TOTALE GENERALE':<40} {'':<18} {tot_in:>9,} {tot_out:>9,} "
           f"{tot_cw:>9,} {tot_cr:>9,} "
           f"${tot_usd:>8.4f} €{tot_eur:>8.4f} "
-          f"{sum(s['api_calls'] for s in sessions):>6}")
+          f"{all_calls:>6}")
     print("=" * 130)
 
     print(f"\n📊 Sessioni: {len(sessions)}")

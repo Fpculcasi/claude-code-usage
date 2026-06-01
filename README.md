@@ -15,24 +15,32 @@ The script scans all JSONL files in `~/.claude/projects/` (cross-platform: Windo
 3. **Extracts metadata**: Captures session title, model used, start/end timestamps
 4. **Separates cache types**: Distinguishes ephemeral 5m and 1h (cache write) vs cache read
 5. **Calculates costs**: Applies official Anthropic pricing for input, output, cache operations
-6. **Displays results**: ASCII table with per-session summary + aggregated totals
+6. **Groups by project**: Organizes sessions by project folder (parent directory name)
+7. **Displays results**: Hierarchical table grouped by project with per-project subtotals + global total
 
 ### Example Output
 
 ```
-══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-TITLE                          MODEL              INPUT    OUTPUT  CACHE W  CACHE R       USD       EUR  CALLS DATE
-──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-Debug API integration          claude-sonnet-4-6  45,280    12,450   20,000    5,200  $0.3241  €0.2981   12  2026-06-01 14:32
-Add new feature                claude-opus-4-8   128,900    35,600    0        0      $1.2845  €1.1817    8   2026-06-01 10:15
-──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-TOTAL                                            174,180    48,050   20,000    5,200  $1.6086  €1.4798   20
+📁 project-1
+TITOLO                                   MODELLO            INPUT    OUTPUT  CACHE W  CACHE R      USD      EUR  CALLS
+  Debug API integration                  claude-sonnet-4-6  45,280    12,450   20,000    5,200  $0.3241  €0.2981     12
+  Add feature to dashboard               claude-haiku-4-5   12,100     3,200        0        0  $0.0141  €0.0130      4
+└─ SUBTOTALE                                                 57,380    15,650   20,000    5,200  $0.3382  €0.3111     16
+==================================================
 
-📊 Sessions: 2
-💰 Total cost: $1.6086 / €1.4798
-🔤 Total tokens: 247,430
-   ├─ Input:             174,180
-   ├─ Output:             48,050
+📁 project-2
+TITOLO                                   MODELLO            INPUT    OUTPUT  CACHE W  CACHE R      USD      EUR  CALLS
+  Refactor auth module                   claude-opus-4-8   128,900    35,600        0        0  $1.2845  €1.1817      8
+└─ SUBTOTALE                                                128,900    35,600        0        0  $1.2845  €1.1817      8
+==================================================
+
+TOTALE GENERALE                                             186,280    51,250   20,000    5,200  $1.6227  €1.4929     24
+
+📊 Sessions: 3
+💰 Total cost: $1.6227 / €1.4929
+🔤 Total tokens: 262,730
+   ├─ Input:             186,280
+   ├─ Output:             51,250
    ├─ Cache write:        20,000
    └─ Cache read:          5,200
 ```
