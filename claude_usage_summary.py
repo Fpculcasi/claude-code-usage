@@ -12,6 +12,9 @@ from datetime import datetime, timezone
 # --- CONFIGURAZIONE PRICING (USD per 1M token) ---
 # Fonte: https://docs.anthropic.com/en/docs/about-claude/pricing
 PRICING = {
+    "claude-fable-5":    {"input": 10.00,  "output": 50.00, "cache_write_5m": 12.5,  "cache_write_1h": 20.00, "cache_read": 1},
+    "claude-mythos-5":   {"input": 10.00,  "output": 50.00, "cache_write_5m": 12.5,  "cache_write_1h": 20.00, "cache_read": 1},
+    "claude-opus-4-8":   {"input": 5.00,  "output": 25.00, "cache_write_5m": 6.25,  "cache_write_1h": 10.00, "cache_read": 0.50},
     "claude-opus-4-7":   {"input": 5.00,  "output": 25.00, "cache_write_5m": 6.25,  "cache_write_1h": 10.00, "cache_read": 0.50},
     "claude-opus-4-6":   {"input": 5.00,  "output": 25.00, "cache_write_5m": 6.25,  "cache_write_1h": 10.00, "cache_read": 0.50},
     "claude-opus-4-5":   {"input": 5.00,  "output": 25.00, "cache_write_5m": 6.25,  "cache_write_1h": 10.00, "cache_read": 0.50},
